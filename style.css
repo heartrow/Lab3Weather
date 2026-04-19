@@ -1,0 +1,50 @@
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #e0e0e0 25%, #f5f5f5 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #e0e8ef;   
+}
+
+h1 {
+    color: #1F4E79;
+}
+
+.search {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    max-width: 500px;
+}
+
+.search input {
+    flex-grow: 1;
+    padding: 0.5rem; 
+    border-radius: 6px; 
+    border-color: #b1b1b1;
+    border-style: solid;
+    font-size: 16px;
+}
+
+.search button {
+    padding: 9px 18px; 
+    background: #2E75B6; 
+    color: white; 
+    border: none;    
+    border-radius: 7px; 
+    font-size: 16px; 
+    cursor: pointer;
+}
+
+.search button:hover {
+    background: #1F4E79;
+}
