@@ -11,15 +11,15 @@
     <h1>Weather Tracking Web</h1>
     <div class="search">
         <input type="text" id="searchBar" placeholder="Type your city">
-        <button id="searchBtn" onclick="getLocation()">Search</button>
+        <button id="searchBtn" onclick="handleSearch()">Search</button>
     </div>
 
     <div class="status" id="status"></div>
 
     <section class="current-weather">
-        <h2 class="city">City</h2>
-        <div class="temp">Temperature</div>
-        <div class="weatherDesc">Weather Description</div>
+        <h2 class="city" id="city">City</h2>
+        <div class="temp" id="temp">Temperature</div>
+        <div class="weatherDesc" id="weatherDesc">Weather Description</div>
 
         <div class="details-grid">
             <div><strong>Humidity:</strong> <span id="humidity">--%</span></div>

@@ -81,8 +81,7 @@ h1 {
     color: #3498db; 
 }
 
-.weatherDesc { 
-    text-transform: capitalize; 
+.weatherDesc {
     font-style: italic; 
     color: #666; 
 }
