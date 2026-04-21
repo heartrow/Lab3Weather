@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Task Board - Kanban</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
 </head>
 
 <body>
@@ -13,8 +12,9 @@
     <div class="search">
         <input type="text" id="searchBar" placeholder="Type your city">
         <button id="searchBtn" onclick="getLocation()">Search</button>
-        <div class="status"></div>
     </div>
+
+    <div class="status" id="status"></div>
 
     <section class="current-weather">
         <h2 class="city">City</h2>
@@ -78,5 +78,6 @@
             </div>
         </div>
     </section>
+    <script src="script.js" defer></script>
 </body>
 </html>

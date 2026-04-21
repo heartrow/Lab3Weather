@@ -49,6 +49,12 @@ h1 {
     background: #1F4E79;
 }
 
+.status {
+    padding-top: 0.8rem;
+    font-size: 1.1rem;
+    color: #666;
+}
+
 
 /*Current Forecast Card*/
 .current-weather{

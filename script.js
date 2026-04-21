@@ -4,8 +4,10 @@ async function getLocation(){
 
     errorDisplay.textContent = "";
 
-    const url = `geocoding-api.openmeteo.com/v1/search?name=${encodeURIComponent(input)}&count=1&language=en&format=json`;
-    
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input)}&count=10&language=en&format=json`;
+
+    console.log(url)
+
     try {
         const response = await fetch(url);
 
@@ -16,16 +18,19 @@ async function getLocation(){
 
         const data = await response.json();
 
-        if(!data.results || data.results.length === 0) {
-            errorDisplay.textContent = `No city found matching "${input}".`;
-            return;
-        } else {
+        if(data.results && data.results.length > 0) {
             const {latitude, longitude, name, country} = data.results[0];
+            
+            console.log(latitude, longitude);
 
             return {
                 lat: latitude,
                 lon: longitude
             };
+
+        } else {
+            errorDisplay.textContent = `No city found matching "${input}".`;
+            return;
         }
 
     } catch (error) {
