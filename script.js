@@ -51,16 +51,39 @@ async function getLocation(){
 // This function important to handle result so js dont quickly call 
 // weather function even when the api couldnt respond yet.
 async function handleSearch(){
+    const statusDisplay = document.getElementById('status');
+    const uiElements = {
+        city: document.getElementById('city'),
+        temp: document.getElementById('temp'),
+        desc: document.getElementById('weatherDesc'),
+        humidity: document.getElementById('humidity'),
+        wind: document.getElementById('wind')
+    }
+
+    Object.values(uiElements).forEach(e => {
+        e.classList.add('skeleton');
+        e.textContent = "";
+    })
+
     const coords = await getLocation();
     
     if(coords) {
-        getWeather(coords);
+        await getWeather(coords);
+    } else {
+        Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
     }
 }
 
 async function getWeather(coords) {
     const { lat, lon, cityName, countryName} = coords;
     const errorDisplay = document.getElementById('status');
+    const uiElements = {
+        city: document.getElementById('city'),
+        temp: document.getElementById('temp'),
+        desc: document.getElementById('weatherDesc'),
+        humidity: document.getElementById('humidity'),
+        wind: document.getElementById('wind')
+    }
     
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,windspeed_10m&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode`;
 
@@ -88,18 +111,22 @@ async function getWeather(coords) {
             console.log(data.hourly.relativehumidity_2m[0]);
 
             // display the data
-            document.getElementById('city').textContent = cityName + ", " + countryName;
-            document.getElementById('temp').textContent = data.current.temperature_2m + " °C";
-            document.getElementById('weatherDesc').textContent = "As for " + data.current.time;
-            document.getElementById('humidity').textContent = data.hourly.relativehumidity_2m[0] + "%"
-            document.getElementById('wind').textContent = data.current.windspeed_10m + "km/h"
+            uiElements.city.textContent = cityName + ", " + countryName;
+            uiElements.temp.textContent  = data.current.temperature_2m + " °C";
+            uiElements.desc.textContent  = "As for " + data.current.time;
+            uiElements.humidity.textContent  = data.hourly.relativehumidity_2m[0] + "%"
+            uiElements.wind.textContent  = data.current.windspeed_10m + "km/h"
+
+            Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
 
         } else {
+            Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
             errorDisplay.textContent = `Forecast data for city of "${cityName}" cannot be found.`;
             return;
         }
 
     } catch (error) {
+        Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
         errorDisplay.textContent = "Network error. Check your connection.";
     }
 }

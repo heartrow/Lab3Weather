@@ -8,6 +8,11 @@
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 4px;
+    /* Ensure the skeleton is visible even when there is no text content */
+    min-height: 1em;
+    min-width: 100px;
+    color: transparent; /* Hide any old text while loading */
+    z-index: 1000;
 }
 
 body {
