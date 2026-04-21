@@ -6,7 +6,7 @@ async function getLocation(){
 
     const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input)}&count=10&language=en&format=json`;
 
-    console.log(url)
+    //console.log(url)
 
     try {
         const response = await fetch(url);
@@ -21,7 +21,7 @@ async function getLocation(){
         if(data.results && data.results.length > 0) {
             const {latitude, longitude, name, country} = data.results[0];
             
-            console.log(latitude, longitude);
+            //console.log(latitude, longitude);
 
             return {
                 lat: latitude,
@@ -37,4 +37,5 @@ async function getLocation(){
         errorDisplay.textContent = "Network error. Check your connection.";
     }
 }
+
 
