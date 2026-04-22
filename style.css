@@ -129,3 +129,44 @@ h1 {
 @media (max-width: 768px) {
     .forecast-row { justify-content: flex-start; }
 }
+
+.errBanner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* This centers it perfectly */
+    min-width: 300px;
+    padding: 20px;
+    background-color: #ffffff;
+    color: #3e3e3e;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    font-family: sans-serif;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from { top: -100px; opacity: 0; }
+    to { top: 20px; opacity: 1; }
+}
+
+.tryBtn {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background-color: #3498db;
+    border: 0px;
+    border-radius: 7px;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.8; 
+    font-weight: bold;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.tryBtn:hover {
+    background: #0046d2;
+}

@@ -45,7 +45,27 @@ async function getLocation(){
 
     } catch (error) {
         errorDisplay.textContent = "Network error. Check your connection.";
+        netErrorPopup();
     }
+}
+
+async function netErrorPopup() {
+    const container = document.getElementById('bannerContainer');
+
+    if(document.querySelector('.errBanner')) return;
+
+    const errBanner = document.createElement('div');
+    errBanner.className = 'errBanner';
+
+    errBanner.innerHTML = `
+        <strong>Oops! A network error had occured.</strong>
+        <p>Please try again.</p>
+        <button class="tryBtn" id="tryAgain">Try Again</button>
+        `;
+    
+    container.appendChild(errBanner);
+    
+    document.getElementById('tryAgain').addEventListener('click', handleSearch);
 }
  
 // This function important to handle result so js dont quickly call 
