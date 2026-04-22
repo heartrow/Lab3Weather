@@ -94,6 +94,21 @@ async function handleSearch(){
     }
 }
 
+const weatherLookup = {
+    0:  { desc: "Clear sky", icon: "☀️" },
+    1:  { desc: "Mainly clear", icon: "🌤️" },
+    2:  { desc: "Partly cloudy", icon: "⛅" },
+    3:  { desc: "Overcast", icon: "☁️" },
+    45: { desc: "Fog", icon: "🌫️" },
+    48: { desc: "Depositing rime fog", icon: "🌫️" },
+    51: { desc: "Light drizzle", icon: "🌦️" },
+    61: { desc: "Slight rain", icon: "🌧️" },
+    63: { desc: "Moderate rain", icon: "🌧️" },
+    71: { desc: "Slight snow fall", icon: "❄️" },
+    95: { desc: "Thunderstorm", icon: "⛈️" },
+    // Add more codes as needed from Open-Meteo documentation
+};
+
 async function getWeather(coords) {
     const { lat, lon, cityName, countryName} = coords;
     const errorDisplay = document.getElementById('status');
@@ -120,6 +135,10 @@ async function getWeather(coords) {
         const data = await response.json();
 
         if(data) {
+            const code = data.daily.weathercode[0];
+
+            const weatherInfo = weatherLookup[code] || { desc: "Unknown", icon: "❓"};
+
             // variables initializations
             //const cityName = location.cityName;
             console.log(cityName);
@@ -133,7 +152,7 @@ async function getWeather(coords) {
             // display the data
             uiElements.city.textContent = cityName + ", " + countryName;
             uiElements.temp.textContent  = data.current.temperature_2m + " °C";
-            uiElements.desc.textContent  = "As for " + data.current.time;
+            uiElements.desc.textContent  = `${weatherInfo.icon} ${weatherInfo.desc}`;
             uiElements.humidity.textContent  = data.hourly.relativehumidity_2m[0] + "%"
             uiElements.wind.textContent  = data.current.windspeed_10m + "km/h"
 
@@ -149,4 +168,6 @@ async function getWeather(coords) {
         Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
         errorDisplay.textContent = "Network error. Check your connection.";
     }
+
+    
 }
