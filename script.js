@@ -27,7 +27,7 @@ async function getLocation(){
         const data = await response.json();
 
         if(data.results && data.results.length > 0) {
-            const {latitude, longitude, name, country} = data.results[0];
+            const {latitude, longitude, name, country, timezone} = data.results[0];
             
             //console.log(latitude, longitude);
 
@@ -35,7 +35,8 @@ async function getLocation(){
                 lat: latitude,
                 lon: longitude,
                 cityName: name,
-                countryName: country
+                countryName: country,
+                timezone: timezone
             };
 
         } else {
@@ -89,6 +90,8 @@ async function handleSearch(){
     
     if(coords) {
         await getWeather(coords);
+        getLocalTime(coords.timezone);
+
     } else {
         Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
     }
@@ -125,11 +128,14 @@ async function getWeather(coords) {
         wind: document.getElementById('wind'),
         
         // Forecast data
+        /*
         fc_day: document.getElementsByClassName("day"),
         fc_icon: document.getElementsByClassName("icon"),
         temp_high: document.getElementsByClassName("high"),
-        temp_low: document.getElementsByClassName("low")
-    }
+        temp_low: document.getElementsByClassName("low")*/
+    };
+
+    const forecastElements = document.querySelectorAll('.day, .icon, .high, .low');
     
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,windspeed_10m&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode`;
 
@@ -171,27 +177,87 @@ async function getWeather(coords) {
                 const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
 
                 const dayWeather = weatherLookup[day.code] || { desc: "Unknown", icon: "❓"};
-                if (uiElements.fc_day[index]) {
-                    uiElements.fc_day[index].textContent = dayName;
-                    uiElements.fc_icon[index].textContent = dayWeather.icon;
-                    uiElements.temp_high[index].textContent = `${Math.round(day.max)}°`;
-                    uiElements.temp_low[index].textContent = `${Math.round(day.min)}°`;
+                
+                const days = document.querySelectorAll('.day');
+                const icons = document.querySelectorAll('.icon');
+                const highs = document.querySelectorAll('.high');
+                const lows = document.querySelectorAll('.low');
+                
+                if (days[index]) {
+                    days[index].textContent = dayName;
+                    icons[index].textContent = dayWeather.icon;
+                    highs[index].textContent = `${Math.round(day.max)}°`;
+                    lows[index].textContent = `${Math.round(day.min)}°`;
                 }
             });
 
-
-            Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
+            Object.values(uiElements).forEach(el => {
+                if (el) el.classList.remove('skeleton')
+            });
 
         } else {
-            Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
+            Object.values(uiElements).forEach(el => {
+                if (el) el.classList.remove('skeleton')
+            });
+
             errorDisplay.textContent = `Forecast data for city of "${cityName}" cannot be found.`;
             return;
         }
 
     } catch (error) {
-        Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
+        Object.values(uiElements).forEach(el => {
+            if (el) el.classList.remove('skeleton')
+        });
         errorDisplay.textContent = "Network error. Check your connection.";
     }
+}
 
-    
+async function getLocalTime(timezone) {
+    const displayElement = $('#localTime');
+
+    const renderTime = (dateObject) => {
+        const formattedTime = dateObject.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        console.log(formattedTime);
+
+        /*
+        displayElement
+            .text(formattedTime)
+        */
+    };
+
+    if(!timezone) {
+        console.warn("Timezone missing. Using browser time.");
+        renderTime(new Date());
+        return;
+    }
+
+    const url = `https://time.now/developer/api/timezone/${timezone}`;
+    console.log(url);
+
+    $.getJSON(url)
+        .done(function(data) {
+            const timeString = data.datetime;
+            console.log(timeString)
+            const dateObject = new Date(timeString);
+            const localTime = dateObject.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            console.log(localTime)
+            $('#localTime').text(localTime);
+        })
+        .fail(function() {
+            console.error("WorldTimeAPI failed. Falling back to browser time.");
+            renderTime(new Date());
+        })
+        .always(function() {
+            const completionTimestamp = new Date().toLocaleTimeString();
+            console.log(`Time request completed at: ${completionTimestamp}`);
+        });
 }

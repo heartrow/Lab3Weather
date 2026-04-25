@@ -91,6 +91,13 @@ h1 {
     color: #666; 
 }
 
+.localTime {
+    padding: 1rem;
+    color: #6e6e6e;
+    font-weight: bold;
+    font-size: 2rem;
+}
+
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
