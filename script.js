@@ -242,7 +242,7 @@ async function getLocalTime(timezone) {
     $.getJSON(url)
         .done(function(data) {
             const timeString = data.datetime;
-            console.log(timeString)
+            console.log(timeString);
             const dateObject = new Date(timeString);
             const localTime = dateObject.toLocaleTimeString([], {
                 hour: '2-digit',
