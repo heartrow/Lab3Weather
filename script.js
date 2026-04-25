@@ -213,23 +213,6 @@ async function getWeather(coords) {
 }
 
 async function getLocalTime(timezone) {
-    const displayElement = $('#localTime');
-
-    const renderTime = (dateObject) => {
-        const formattedTime = dateObject.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
-
-        console.log(formattedTime);
-
-        /*
-        displayElement
-            .text(formattedTime)
-        */
-    };
-
     if(!timezone) {
         console.warn("Timezone missing. Using browser time.");
         renderTime(new Date());
