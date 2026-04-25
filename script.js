@@ -106,6 +106,11 @@ const weatherLookup = {
     63: { desc: "Moderate rain", icon: "🌧️" },
     71: { desc: "Slight snow fall", icon: "❄️" },
     95: { desc: "Thunderstorm", icon: "⛈️" },
+    53: { desc: "Moderate drizzle", icon: "🌦️" },
+    55: { desc: "Dense drizzle", icon: "🌦️" },
+    63: { desc: "Moderate rain", icon: "🌧️" },
+    65: { desc: "Heavy rain", icon: "🌧️" },
+    80: { desc: "Slight rain showers", icon: "🌦️" }
     // Add more codes as needed from Open-Meteo documentation
 };
 
@@ -117,7 +122,13 @@ async function getWeather(coords) {
         temp: document.getElementById('temp'),
         desc: document.getElementById('weatherDesc'),
         humidity: document.getElementById('humidity'),
-        wind: document.getElementById('wind')
+        wind: document.getElementById('wind'),
+        
+        // Forecast data
+        fc_day: document.getElementsByClassName("day"),
+        fc_icon: document.getElementsByClassName("icon"),
+        temp_high: document.getElementsByClassName("high"),
+        temp_low: document.getElementsByClassName("low")
     }
     
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,windspeed_10m&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode`;
@@ -136,25 +147,38 @@ async function getWeather(coords) {
 
         if(data) {
             const code = data.daily.weathercode[0];
-
+            
             const weatherInfo = weatherLookup[code] || { desc: "Unknown", icon: "❓"};
 
-            // variables initializations
-            //const cityName = location.cityName;
-            console.log(cityName);
-            //const temgetperature = data.current.temperature_2m;
-            console.log(data.current.temperature_2m);
-            //const windSpeed = data.current.windspeed_10m;
-            console.log(data.current.windspeed_10m);
-            //const humidity = data.hourly.relativehumidity_2m[0];
-            console.log(data.hourly.relativehumidity_2m[0]);
+            const sevenDayForecast = data.daily.time.map((date, index) => {
+                return {
+                    date: date,
+                    max: data.daily.temperature_2m_max[index],
+                    min: data.daily.temperature_2m_min[index],
+                    code: data.daily.weathercode[index]
+                };
+            });
 
             // display the data
             uiElements.city.textContent = cityName + ", " + countryName;
             uiElements.temp.textContent  = data.current.temperature_2m + " °C";
             uiElements.desc.textContent  = `${weatherInfo.icon} ${weatherInfo.desc}`;
-            uiElements.humidity.textContent  = data.hourly.relativehumidity_2m[0] + "%"
-            uiElements.wind.textContent  = data.current.windspeed_10m + "km/h"
+            uiElements.humidity.textContent  = data.hourly.relativehumidity_2m[0] + "%";
+            uiElements.wind.textContent  = data.current.windspeed_10m + "km/h";
+
+            sevenDayForecast.forEach((day, index) => {
+                const dateObj = new Date(day.date);
+                const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
+
+                const dayWeather = weatherLookup[day.code] || { desc: "Unknown", icon: "❓"};
+                if (uiElements.fc_day[index]) {
+                    uiElements.fc_day[index].textContent = dayName;
+                    uiElements.fc_icon[index].textContent = dayWeather.icon;
+                    uiElements.temp_high[index].textContent = `${Math.round(day.max)}°`;
+                    uiElements.temp_low[index].textContent = `${Math.round(day.min)}°`;
+                }
+            });
+
 
             Object.values(uiElements).forEach(el => el.classList.remove('skeleton'));
 
