@@ -20,8 +20,7 @@ async function getLocation(){
         const response = await fetch(url);
 
         if (!response.ok) {
-            errorDisplay.textContent = "Server error. Please try again later.";
-            return;
+            throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -45,8 +44,11 @@ async function getLocation(){
         }
 
     } catch (error) {
-        errorDisplay.textContent = "Network error. Check your connection.";
-        netErrorPopup();
+        errorDisplay.textContent = error.message;
+
+        if(error.message.includes('Network error') || error instanceof TypeError) {
+            netErrorPopup();
+        }
     }
 }
 
@@ -72,7 +74,14 @@ async function netErrorPopup() {
 // This function important to handle result so js dont quickly call 
 // weather function even when the api couldnt respond yet.
 async function handleSearch(){
+    const input = document.getElementById('searchBar').value.trim();
     const statusDisplay = document.getElementById('status');
+    
+    if(!input) {
+        statusDisplay.textContent = "Please enter a city name first.";
+        return;
+    }
+
     const uiElements = {
         city: document.getElementById('city'),
         temp: document.getElementById('temp'),
@@ -145,6 +154,16 @@ async function getWeather(coords) {
         const response = await fetch(url);
 
         if (!response.ok) {
+            switch (response.status) {
+                case 404:
+                    throw new Error("Location service not found.");
+                case 429:
+                    throw new Error("Too many requests. Take a breahter!");
+                case 500:
+                    throw new Error("The weather server is having a meltdown.");
+                default: 
+                    throw new Error(`HTTP Error: ${response.status}`);
+            }
             errorDisplay.textContent = "Server error. Please try again later.";
             return;
         }
@@ -208,7 +227,7 @@ async function getWeather(coords) {
         Object.values(uiElements).forEach(el => {
             if (el) el.classList.remove('skeleton')
         });
-        errorDisplay.textContent = "Network error. Check your connection.";
+        errorDisplay.textContent = `Failed to load weather: ${error.message}`;
     }
 }
 
@@ -236,6 +255,7 @@ async function getLocalTime(timezone) {
             $('#localTime').text(localTime);
         })
         .fail(function() {
+            console.log("My ball");
             console.error("WorldTimeAPI failed. Falling back to browser time.");
             renderTime(new Date());
         })
