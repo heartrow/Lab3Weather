@@ -76,12 +76,20 @@ async function netErrorPopup() {
 async function handleSearch(){
     const input = document.getElementById('searchBar').value.trim();
     const statusDisplay = document.getElementById('status');
-    
+
+
     if(!input) {
         statusDisplay.textContent = "Please enter a city name first.";
         return;
     }
 
+    if (input.length < 2 ) {
+        statusDisplay.textContent = "Please enter at least 2 characters to search.";
+        statusDisplay.style.color = "#ff4d4d";
+        return;
+    }
+
+    statusDisplay.textContent = "";
     const uiElements = {
         city: document.getElementById('city'),
         temp: document.getElementById('temp'),
@@ -95,7 +103,7 @@ async function handleSearch(){
         e.textContent = "";
     })
 
-    const coords = await getLocation();
+    const coords = await getLocation(input);
     
     if(coords) {
         await getWeather(coords);
