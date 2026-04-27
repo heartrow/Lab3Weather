@@ -1,14 +1,21 @@
 const searchInput = document.getElementById('searchBar');
+const debouncedSearch = debounce(handleSearch, 500);
+let currentUnit = 'C';
+let currentWeatherData = null;
 
-searchInput.addEventListener('keydown', function(event) {
+searchInput.addEventListener('input', debouncedSearch);
+
+/*searchInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         handleSearch();
     }
-});
+});*/
 
 async function getLocation(){
     const input = document.getElementById('searchBar').value;
     const errorDisplay = document.getElementById('status');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     errorDisplay.textContent = "";
 
@@ -17,7 +24,7 @@ async function getLocation(){
     console.log(url)
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: controller.signal });
 
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
@@ -44,11 +51,21 @@ async function getLocation(){
         }
 
     } catch (error) {
+        if (error.name === 'AbortError') {
+            errorDisplay.textContent = "Request timed out. PLease check your connection.";
+        } else {
+            errorDisplay.textContent = error.message;
+            if (error instanceof TypeError) netErrorPopup();
+        }
+        return null;
+        /*
         errorDisplay.textContent = error.message;
 
         if(error.message.includes('Network error') || error instanceof TypeError) {
             netErrorPopup();
-        }
+        }*/
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
@@ -76,7 +93,6 @@ async function netErrorPopup() {
 async function handleSearch(){
     const input = document.getElementById('searchBar').value.trim();
     const statusDisplay = document.getElementById('status');
-
 
     if(!input) {
         statusDisplay.textContent = "Please enter a city name first.";
@@ -177,6 +193,8 @@ async function getWeather(coords) {
         }
 
         const data = await response.json();
+        currentWeatherData = data;
+        saveToHistory(cityName);
 
         if(data) {
             const code = data.daily.weathercode[0];
@@ -194,7 +212,7 @@ async function getWeather(coords) {
 
             // display the data
             uiElements.city.textContent = cityName + ", " + countryName;
-            uiElements.temp.textContent  = data.current.temperature_2m + " °C";
+            uiElements.temp.textContent  = `${convertTemp(data.current.temperature_2m)} °${currentUnit}`;
             uiElements.desc.textContent  = `${weatherInfo.icon} ${weatherInfo.desc}`;
             uiElements.humidity.textContent  = data.hourly.relativehumidity_2m[0] + "%";
             uiElements.wind.textContent  = data.current.windspeed_10m + "km/h";
@@ -215,6 +233,11 @@ async function getWeather(coords) {
                     icons[index].textContent = dayWeather.icon;
                     highs[index].textContent = `${Math.round(day.max)}°`;
                     lows[index].textContent = `${Math.round(day.min)}°`;
+                }
+
+                if (highs[index]) {
+                    highs[index].textContent = `${convertTemp(day.max)}°`;
+                    lows[index].textContent = `${convertTemp(day.min)}°`;
                 }
             });
 
@@ -271,4 +294,57 @@ async function getLocalTime(timezone) {
             const completionTimestamp = new Date().toLocaleTimeString();
             console.log(`Time request completed at: ${completionTimestamp}`);
         });
+}
+
+function debounce(func, delay) {
+    let timeoutId;
+
+    return (...args) => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+            func.apply(null, args);
+        }, delay);
+    };
+}
+
+function saveToHistory(cityName) {
+    let history = JSON.parse(localStorage.getItem('weatherHistory')) || [];
+    history = history.filter(item => item.toLowerCase() !== cityName.toLowerCase());
+    history.unshift(cityName);
+
+    history = history.slice(0, 5);
+    localStorage.setItem('weatherHistory', JSON.stringify(history));
+    renderHistory();
+}
+
+function renderHistory() {
+    const container = document.getElementById('historyContainer');
+    if (!container) return;
+
+    const history = JSON.parse(localStorage.getItem('weatherHistory')) || [];
+    container.innerHTML = history.map(city => `
+        <button class="city-chip" onclick="searchFromHistory('${city}')">${city}</button>
+        `).join('');
+}
+
+window.searchFromHistory = (city) => {
+    document.getElementById('searchBar').value = city;
+    handleSearch();
+};
+
+function toggleUnits() {
+    currentUnit = currentUnit === 'C' ? 'F' : 'C';
+    document.getElementById('unitToggle').textContent = `Switch to °${currentUnit === 'C' ? 'F' : 'C'}`;
+
+    if (currentWeatherData) {
+        updateWeatherUI(currentWeatherData);
+    }
+}
+
+function convertTemp(tempC) {
+    if(currentUnit === 'C') return Math.round(tempC);
+    return Math.round((tempC * 9/5 + 32));
 }

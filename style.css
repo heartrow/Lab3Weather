@@ -177,3 +177,17 @@ h1 {
 .tryBtn:hover {
     background: #0046d2;
 }
+
+.city-chip {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 15px;
+    padding: 5px 12px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.city-chip:hover {
+    background: #ccc;
+}
