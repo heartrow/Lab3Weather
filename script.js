@@ -52,7 +52,7 @@ async function getLocation(){
 
     } catch (error) {
         if (error.name === 'AbortError') {
-            errorDisplay.textContent = "Request timed out. PLease check your connection.";
+            errorDisplay.textContent = "Request timed out. Please check your connection.";
         } else {
             errorDisplay.textContent = error.message;
             if (error instanceof TypeError) netErrorPopup();
@@ -193,8 +193,13 @@ async function getWeather(coords) {
         }
 
         const data = await response.json();
+
+        data.cityName = cityName;
+        data.countryName = countryName;
+
         currentWeatherData = data;
         saveToHistory(cityName);
+        updateWeatherUI(data);
 
         if(data) {
             const code = data.daily.weathercode[0];
@@ -347,4 +352,41 @@ function toggleUnits() {
 function convertTemp(tempC) {
     if(currentUnit === 'C') return Math.round(tempC);
     return Math.round((tempC * 9/5 + 32));
+}
+
+function updateWeatherUI(data) {
+    const uiElements = {
+        city: document.getElementById('city'),
+        temp: document.getElementById('temp'),
+        desc: document.getElementById('weatherDesc'),
+        humidity: document.getElementById('humidity'),
+        wind: document.getElementById('wind')
+    };
+
+    const weatherInfo = weatherLookup[data.daily.weathercode[0]] ||{ desc: "Unknown", icon: "❓"};
+
+    uiElements.city.textContent = `${data.cityName}, ${data.countryName}`;
+    uiElements.temp.textContent = `${convertTemp(data.current.temperature_2m)} °${currentUnit}`;
+    uiElements.desc.textContent = `${weatherInfo.icon} ${weatherInfo.desc}`;
+    uiElements.humidity.textContent = `${data.hourly.relativehumidity_2m[0]}%`;
+    uiElements.wind.textContent = `${data.current.windspeed_10m} km/h`;
+
+    const days = document.querySelectorAll('.day');
+    const icons = document.querySelectorAll('.icon');
+    const highs = document.querySelectorAll('.high');
+    const lows = document.querySelectorAll('.low');
+
+    data.daily.time.forEach((date, index) => {
+        if (days[index]) {
+            const dateObj = new Date(date);
+            days[index].textContent = dateObj.toLocaleTimeString(undefined, { weekday: 'short' });
+
+            const dayWeather = weatherLookup[data.daily.weathercode[index]] || { desc: "Unknown", icon: "❓"};
+            icons[index].textContent = dayWeather.icon;
+            highs[index].textContent = `${convertTemp(data.daily.temperature_2m_max[index])}°`;
+            lows[index].textContent = `${convertTemp(data.daily.temperature_2m_min[index])}°`;
+        }
+    });
+
+    Object.values(uiElements).forEach(el => el?.classList.remove('skeleton'));
 }

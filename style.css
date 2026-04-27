@@ -179,15 +179,35 @@ h1 {
 }
 
 .city-chip {
-    background: #e0e0e0;
-    border: none;
-    border-radius: 15px;
-    padding: 5px 12px;
+    background: #ffffff;
+    border: 2px solid #1F4E79;
+    color: #1F4E79;
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 8px 15px;
     margin: 5px;
     cursor: pointer;
     font-size: 0.9rem;
 }
 
 .city-chip:hover {
-    background: #ccc;
+    background: #2E75B6;
+    border: 2px solid #2E75B6;
+    color: #ffffff;
+}
+
+.unitToggle {
+    padding: 12px 10px;
+    margin-bottom: 0.4rem;
+    border: 1px solid #28659d;
+    border-radius: 20px;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: #ffffff;
+    background: #28659d;
+}
+
+.unitToggle:hover {
+    background: #1a4369;
+    border: 1px solid #1a4369;
 }
